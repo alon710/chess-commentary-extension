@@ -1,0 +1,21 @@
+{
+  "name": "chess-com-annotation-reader",
+  "version": "1.0.0",
+  "description": "Reads chess annotations aloud on chess.com using TTS.",
+  "main": "dist/content.js",
+  "scripts": {
+    "build": "yarn clean && yarn build:content && yarn build:popup",
+    "build:content": "esbuild src/content.ts --bundle --outfile=dist/content.js --format=iife --sourcemap --log-level=info",
+    "build:popup": "esbuild src/popup.ts --bundle --outfile=dist/popup.js --format=esm --sourcemap --log-level=info",
+    "watch": "yarn build && concurrently \"yarn build:content --watch\" \"yarn build:popup --watch\"",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.268",
+    "concurrently": "^9.1.2",
+    "esbuild": "^0.25.2",
+    "typescript": "^5.4.5"
+  },
+  "packageManager": "yarn@4.1.1",
+  "license": "MIT"
+}
