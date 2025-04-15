@@ -1,0 +1,42 @@
+name: Publish Chrome Extension
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: Build and Publish Extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build extension
+        run: yarn build
+
+      - name: Create ZIP file
+        run: |
+          cd dist
+          zip -r ../extension.zip ./*
+
+      - name: Upload to Chrome Web Store
+        uses: mnao305/chrome-extension-upload@v5.0.0
+        with:
+          file-path: extension.zip
+          extension-id: ${{ secrets.EXTENSION_ID }}
+          client-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          refresh-token: ${{ secrets.REFRESH_TOKEN }}
+          publish: true
