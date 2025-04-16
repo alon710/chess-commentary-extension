@@ -4,13 +4,56 @@ const pieceNames: { [key: string]: string } = {
   R: "Rook",
   Q: "Queen",
   K: "King",
+  P: "Pawn",
 };
+
+function formatSpecialNotations(text: string): string {
+  text = text.replace(/^[NBRQK]/, "");
+
+  return text
+    .replace(/x/g, " takes ")
+    .replace(/\+/g, " check")
+    .replace(/#/g, " checkmate")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 export function formatMoveForSpeech(move: string): string {
   let formatted = move.trim();
+  console.log("Input move:", formatted);
 
-  if (formatted === "O-O") return "Castle Kingside";
-  if (formatted === "O-O-O") return "Castle Queenside";
+  const moveTextMatch = formatted.match(
+    /<span class="node-highlight-content[^>]*>(?:<span[^>]*data-figurine="([NBRQK])"[^>]*>)?([^<]+)<\/span>/
+  );
+  console.log("Move text match:", moveTextMatch);
+
+  if (moveTextMatch) {
+    const pieceLetter = moveTextMatch[1];
+    let moveText = moveTextMatch[2].trim();
+    moveText = formatSpecialNotations(moveText);
+
+    if (pieceLetter) {
+      return `${pieceNames[pieceLetter]} ${moveText.toUpperCase()}`;
+    } else {
+      return `Pawn ${moveText.toUpperCase()}`;
+    }
+  }
+
+  const figurineMatch = formatted.match(/data-figurine="([NBRQK])"/);
+  console.log("Figurine match:", figurineMatch);
+
+  if (figurineMatch) {
+    const pieceLetter = figurineMatch[1];
+
+    let moveText = formatted.split("</span>").pop()?.trim() || "";
+    moveText = formatSpecialNotations(moveText);
+
+    console.log("Piece letter:", pieceLetter, "Move text:", moveText);
+    return `${pieceNames[pieceLetter]} ${moveText.toUpperCase()}`;
+  }
+
+  if (formatted === "O-O") return "King castles Kingside";
+  if (formatted === "O-O-O") return "King castles Queenside";
 
   const regex =
     /^([NBRQK])?([a-h]?[1-8]?)(x?)([a-h])([1-8])(=?[NBRQ])?([+#])?$/;
@@ -19,7 +62,9 @@ export function formatMoveForSpeech(move: string): string {
   if (match) {
     let parts: string[] = [];
 
-    if (match[1]) {
+    if (!match[1]) {
+      parts.push("Pawn");
+    } else {
       const pieceLetter = match[1].toUpperCase();
       parts.push(pieceNames[pieceLetter] || pieceLetter);
     }
@@ -42,16 +87,8 @@ export function formatMoveForSpeech(move: string): string {
     if (match[7] === "+") parts.push("check");
     if (match[7] === "#") parts.push("checkmate");
 
-    formatted = parts.join(" ");
+    return parts.join(" ");
   } else {
-    formatted = formatted
-      .replace(/([a-h])([1-8])/g, "$1 $2")
-      .replace(/x/g, " takes ")
-      .replace(/\+/g, " check")
-      .replace(/#/g, " checkmate")
-      .replace(/\s+/g, " ")
-      .toUpperCase();
+    return "Pawn " + formatSpecialNotations(formatted).toUpperCase();
   }
-
-  return formatted;
 }

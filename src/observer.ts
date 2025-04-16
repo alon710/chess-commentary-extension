@@ -21,7 +21,9 @@ function findAndSpeakSelectedMove(selectedNode: Element): void {
 
   const textElement =
     selectedNode.querySelector<HTMLElement>(MOVE_TEXT_SELECTOR);
-  const rawText = textElement?.innerText;
+  if (!textElement) return;
+
+  const rawText = textElement.innerHTML;
   const text = rawText?.trim();
 
   if (text) {
