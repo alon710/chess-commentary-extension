@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Chess.com Annotation Reader",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Reads chess annotations aloud on chess.com using TTS.",
   "permissions": ["storage"],
   "action": {
